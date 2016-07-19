@@ -4,9 +4,6 @@
             [prisoners.strategies.always-betray :as always-betray]))
 
 
-
-;(def moves [:co-op :betray])
-
 (def payoffs {:co-op {:co-op [2 2]
                       :betray [0 3]}
               :betray {:co-op  [3 0]
@@ -15,8 +12,4 @@
 (def strategies
   (into {} [random/entry
             always-co-op/entry
-            always-betray/entry])
-  ;{:random [random/play "rgb(200,150,50)"]}
-  )
-
-(println strategies)
+            always-betray/entry]))

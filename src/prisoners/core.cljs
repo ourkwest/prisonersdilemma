@@ -14,7 +14,7 @@
 (defonce app-state (atom {}))
 ;
 (defn new-state [] {:counter 0
-                    :world (world/new-world-2)})
+                    :world   (world/new-world)})
 ;
 (defn hello-world []
   [:div
@@ -50,7 +50,7 @@
 (defn tick! []
   (swap! app-state update :counter inc)
   (println "Ticking...")
-  (swap! app-state dilemma/play-2)
+  (swap! app-state dilemma/play)
   (println "Ticking...DONE")
   )
 ;

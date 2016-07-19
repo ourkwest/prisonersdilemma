@@ -8,25 +8,12 @@
 (defn random-team []
   (rand-nth (keys strategies/strategies)))
 
-(defn new-node []
-  {:team (random-team)
-   :score 0
-   :history []})
-
-(defn new-world []
-  (into [] (for [_ (range world-w)]
-             (into [] (for [_ (range world-h)]
-                        (new-node))))))
-
-
-;; 2222222222222222
-
-(defn new-node-2 [x y]
+(defn new-node [x y]
   {:x x :y y :score 0 :team (random-team)})
 
 (defn new-nodes []
   (vec (for [x (range world-w) y (range world-h)]
-         (new-node-2 x y))))
+         (new-node x y))))
 
 (defn neighbours [x y]
   (for [dx (range -1 2) dy (range -1 2) :when (not= dx dy 0)]
@@ -43,7 +30,7 @@
                nindex (find-index nx ny)]
            [index nindex []]))))
 
-(defn new-world-2 []
+(defn new-world []
   {:max 100
    :min 0
    :loser 0
