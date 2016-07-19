@@ -13,35 +13,28 @@
 
 (defonce app-state (atom {}))
 ;
-(defn new-state [] {:text "Hello Bananas!" :counter 1 :max 1
-                    :board (world/new-world)})
+(defn new-state [] {:counter 0
+                    :world (world/new-world-2)})
 ;
 (defn hello-world []
   [:div
-   [:h1 (:text @app-state) (str ">>>" (:counter @app-state) " - " (get-in @app-state [:board 1 1]))]
+   [:h1 (str ">>> " (:counter @app-state) " - " (:loser (:world @app-state)))]
 
    [:svg {:style    {:border "1px solid black"
                      :width  "90%"
                      :height "90%"}
           :view-box (string/join " " [0 0 world/world-w world/world-h])}
 
-    (let [{:keys [min max board]} @app-state
+    (let [{:keys [min max nodes]} (:world @app-state)
           score-range (- max min)]
-
-      (into [:g] (for [x (range world/world-w) y (range world/world-h)]
-                   (let [node (get-in board [x y])
-                         score (:score node)
-                         color (second ((:team node) strategies/strategies))
+      (into [:g] (for [{:keys [x y score team]} nodes]
+                   (let [color (second (team strategies/strategies))
                          size (/ (- score min) score-range)]
                      [:rect {:x      x
                              :y      y
                              :width  size
                              :height size
-                             :style  {"fill" color}}])
-
-                   )))]]
-
-  )
+                             :style  {"fill" color}}]))))]])
 
 ;(reagent/render-component [hello-world] (. js/document (getElementById "app")))
 
@@ -55,9 +48,10 @@
 
 
 (defn tick! []
-  (println "Ticking...")
   (swap! app-state update :counter inc)
-  (swap! app-state dilemma/play)
+  (println "Ticking...")
+  (swap! app-state dilemma/play-2)
+  (println "Ticking...DONE")
   )
 ;
 ;;(js/setInterval tick! 1500)
@@ -71,7 +65,7 @@
 (defn init []
   (on-js-reload)
   ;(.addEventListener js/document "keydown" handle-keydown)
-  (js/setInterval tick! 2000)
+  (js/setInterval tick! 500)
   )
 
 (defonce start
