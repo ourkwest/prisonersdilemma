@@ -3,6 +3,7 @@
             [clojure.string :as string]
             [prisoners.world :as world]
             [prisoners.dilemma :as dilemma]
+            [prisoners.strategies :as strategies]
             ))
 
 (enable-console-print!)
@@ -24,14 +25,21 @@
                      :height "90%"}
           :view-box (string/join " " [0 0 world/world-w world/world-h])}
 
-    (into [:g] (for [x (range world/world-w) y (range world/world-h)]
-               (let [score (:score (get-in @app-state [:board x y]))
-                     size (/ score (:max @app-state))]
-                 [:rect {:x x :y y :width size :height size
-                         ;:key (str "node-" x "-" y)
-                         }])
+    (let [{:keys [min max board]} @app-state
+          score-range (- max min)]
 
-               ))]]
+      (into [:g] (for [x (range world/world-w) y (range world/world-h)]
+                   (let [node (get-in board [x y])
+                         score (:score node)
+                         color (second ((:team node) strategies/strategies))
+                         size (/ (- score min) score-range)]
+                     [:rect {:x      x
+                             :y      y
+                             :width  size
+                             :height size
+                             :style  {"fill" color}}])
+
+                   )))]]
 
   )
 
@@ -63,7 +71,7 @@
 (defn init []
   (on-js-reload)
   ;(.addEventListener js/document "keydown" handle-keydown)
-  (js/setInterval tick! 100)
+  (js/setInterval tick! 2000)
   )
 
 (defonce start

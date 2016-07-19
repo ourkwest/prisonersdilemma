@@ -1,5 +1,7 @@
 (ns prisoners.strategies
-  (:require [prisoners.strategies.random :as random]))
+  (:require [prisoners.strategies.random :as random]
+            [prisoners.strategies.always-co-op :as always-co-op]
+            [prisoners.strategies.always-betray :as always-betray]))
 
 
 
@@ -11,4 +13,10 @@
                        :betray [1 1]}})
 
 (def strategies
-  {:random random/play})
+  (into {} [random/entry
+            always-co-op/entry
+            always-betray/entry])
+  ;{:random [random/play "rgb(200,150,50)"]}
+  )
+
+(println strategies)

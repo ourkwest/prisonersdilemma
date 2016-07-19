@@ -22,8 +22,11 @@
         ;_ (println t1 (strategies/strategies t1))
         ;_ (println t2 (strategies/strategies t2))
 
-        move1 ((strategies/strategies t1) h1 h2)
-        move2 ((strategies/strategies t2) h2 h1)
+        fn1 (first (strategies/strategies t1))
+        fn2 (first (strategies/strategies t2))
+
+        move1 (fn1 h1 h2)
+        move2 (fn2 h2 h1)
         [ds1 ds2] (get-in strategies/payoffs [move1 move2])]
 
     ;(println [x1 y1] h1 t1 s1 move1 ds1)
@@ -32,26 +35,11 @@
     (-> board
         (assoc-in [x1 y1] {:history (take 10 (cons move1 h1))
                            :team    t1
-                           :score   (+ s1 ds1)})
+                           :score   (+ s1 ds1 -1)})
         (assoc-in [x2 y2] {:history (take 10 (cons move2 h2))
                            :team    t2
-                           :score   (+ s2 ds2)}))
+                           :score   (+ s2 ds2 -1)}))
     )
-
-  ;(let [{h1 :history t1 :team s1 :score} (get-in board [x1 y1])
-  ;      {h2 :history t2 :team s2 :score} (get-in board [x2 y2])
-  ;      move1 (t1 h1 h2)
-  ;      move2 (t2 h2 h1)
-  ;      [ds1 ds2] (get-in strategies/payoffs [move1 move2])]
-  ;  (-> board
-  ;      (assoc-in [x1 y1] {:history (take 10 (cons move1 h1))
-  ;                         :team    t1
-  ;                         :score   (+ s1 ds1)})
-  ;      (assoc-in [x2 y2] {:history (take 10 (cons move2 h2))
-  ;                         :team    t2
-  ;                         :score   (+ s2 ds2)})))
-
-  ;board
   )
 
 (defn play-one-square [board [x y]]
@@ -59,11 +47,17 @@
   ;board
   )
 
-(defn find-max [[biggest board] [x y]]
-  [(max biggest (get-in board [x y :score])) board])
+(defn find-limits [[lo hi loser board] [x y]]
+  (let [score (get-in board [x y :score])
+        new-lo (min lo score)
+        new-hi (max hi score)
+        new-loser (if (= new-lo score) [x y] loser)]
+    [new-lo new-hi new-loser board]))
 
-(defn play [{:keys [board] :as world}]
+(defn play [{:keys [board max min] :as world}]
   ;(println "playing...")
   (let [new-board (reduce play-one-square board (for [x (range world/world-w) y (range world/world-h)] [x y]))
-        new-max (first (reduce find-max [0 new-board] (for [x (range world/world-w) y (range world/world-h)] [x y])))]
-    (assoc world :board new-board :max new-max)))
+        [lo hi loser _] (reduce find-limits [max min [0 0] new-board] (for [x (range world/world-w) y (range world/world-h)] [x y]))
+        new-board (assoc-in new-board loser (world/new-node))]
+    (println "replaced " loser)
+    (assoc world :board new-board :max hi :min lo)))
