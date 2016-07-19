@@ -32,8 +32,10 @@
         (assoc :loser new-loser)
         )))
 
-(defn replace-loser [{:keys [loser] :as world}]
-  (assoc-in world [:nodes loser :team] (world/random-team)))
+(defn replace-loser [{:keys [loser min max] :as world}]
+  (-> world
+      (assoc-in [:nodes loser :team] (world/random-team))
+      (assoc-in [:nodes loser :score] (/ (+ min max) 2))))
 
 (defn play [{{:keys [min max inter] :as world} :world :as state}]
   (-> state
