@@ -2,7 +2,7 @@
   (:require [prisoners.strategies :as strategies]))
 
 
-(def world-h 30)
+(def world-h 20)
 (def world-w 30)
 
 (defn random-team []

@@ -3,6 +3,10 @@
             [prisoners.world :as world]))
 
 
+(defn add-history [history m1 m2]
+  (take 10 (conj history m1 m2)))
+
+
 (defn rplay [world [i i1 i2 history]]
   (let [nodes (:nodes world)
         node1 (nth nodes i1)
@@ -16,10 +20,16 @@
         move1 (fn1 h1 h2)
         move2 (fn2 h2 h1)
         [ds1 ds2] (get-in strategies/payoffs [move1 move2])]
+
+    ;(when (= i 0)
+    ;  (println "Sample:" t1 "vs" t2 " -> " move1 "vs" move2 " -> " ds1 " vs " ds2)
+    ;
+    ;  )
+
     (-> world
         (update-in [:nodes i1 :score] + ds1)
         (update-in [:nodes i2 :score] + ds2)
-        (update-in [:inter i 2] conj [move1 move2]))))
+        (update-in [:inter i 2] add-history move1 move2))))
 
 (defn find-limits [{:keys [nodes] :as world}]
   (let [scores (map :score nodes)
