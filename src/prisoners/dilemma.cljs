@@ -15,30 +15,25 @@
         h2 (map second history)
         move1 (fn1 h1 h2)
         move2 (fn2 h2 h1)
-        [ds1 ds2] (get-in strategies/payoffs [move1 move2])
-        s1 (+ (:score node1) ds1)
-        s2 (+ (:score node2) ds2)
-        loser (:loser world)
-        new-loser (cond
-                    (= s1 (:min world)) i1
-                    (= s2 (:min world)) i2
-                    :else loser)]
+        [ds1 ds2] (get-in strategies/payoffs [move1 move2])]
     (-> world
         (update-in [:nodes i1 :score] + ds1)
         (update-in [:nodes i2 :score] + ds2)
-        (update-in [:inter i 2] conj [move1 move2])
-        (update :max max s1 s2)
-        (update :min min s1 s2)
-        (assoc :loser new-loser)
-        )))
+        (update-in [:inter i 2] conj [move1 move2]))))
 
-(defn replace-loser [{:keys [loser min max] :as world}]
-  (-> world
-      (assoc-in [:nodes loser :team] (world/random-team))
-      (assoc-in [:nodes loser :score] (/ (+ min max) 2))))
+(defn find-limits [{:keys [nodes] :as world}]
+  (let [scores (map :score nodes)
+        new-min (apply min scores)
+        new-max (apply max scores)
+        swap (.indexOf scores new-min)]
+    (-> world
+        (assoc :min new-min :max new-max :swap swap)
+        (assoc-in [:nodes swap :team] (world/random-team))
+        (assoc-in [:nodes swap :score] (/ (+ new-min new-max) 2)))))
 
-(defn play [{{:keys [min max inter] :as world} :world :as state}]
-  (-> state
-      (assoc :world
-             (reduce rplay (assoc world :min max :max min) (map-indexed cons inter)))
-      (update :world replace-loser)))
+(defn play [{{:keys [inter]} :world :as state}]
+  (let [value (-> state
+                  (update :world #(reduce rplay % (map-indexed cons inter)))
+                  (update :world find-limits))]
+    ;(println "Ticking... _2_" (system-time))
+    value))

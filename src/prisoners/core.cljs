@@ -21,8 +21,8 @@
    [:h1 (str ">>> " (:counter @app-state) " - " (:loser (:world @app-state)))]
 
    [:svg {:style    {:border "1px solid black"
-                     :width  "90%"
-                     :height "90%"}
+                     :width  "70%"
+                     :height "50%"}
           :view-box (string/join " " [0 0 world/world-w world/world-h])}
 
     (let [{:keys [min max nodes]} (:world @app-state)
@@ -49,9 +49,10 @@
 
 (defn tick! []
   (swap! app-state update :counter inc)
-  (println "Ticking...")
+  ;(println "Ticking... 1__" (system-time))
   (swap! app-state dilemma/play)
-  (println "Ticking...DONE")
+  ;(println "Ticking... __3" (system-time))
+  ;(println (update-in @app-state [:world :inter] (fn [x] (map #(take 2 %) x))))
   )
 ;
 ;;(js/setInterval tick! 1500)
@@ -62,10 +63,15 @@
   (reset! app-state (new-state))
   (reagent/render-component [hello-world] (. js/document (getElementById "app"))))
 
+(defn animate []
+  (tick!)
+  (.requestAnimationFrame js/window animate))
+
 (defn init []
   (on-js-reload)
   ;(.addEventListener js/document "keydown" handle-keydown)
-  (js/setInterval tick! 500)
+  ;(js/setInterval tick! 500)
+  (animate)
   )
 
 (defonce start

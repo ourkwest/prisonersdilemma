@@ -3,7 +3,7 @@
 
 
 (def world-h 30)
-(def world-w 50)
+(def world-w 30)
 
 (defn random-team []
   (rand-nth (keys strategies/strategies)))
@@ -33,6 +33,5 @@
 (defn new-world []
   {:max 100
    :min 0
-   :loser 0
    :nodes (new-nodes)
    :inter (new-inter)})
