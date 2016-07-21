@@ -1,2 +1,7 @@
 /* some style */
 
+body {
+    color: rgb(150,150,150);
+    background-color: black;
+    font-family: "Lucida Console", Monaco, monospace;
+}

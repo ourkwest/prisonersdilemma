@@ -15,11 +15,27 @@
 (defonce app-state (atom {}))
 ;
 (defn new-state [] {:counter 0
+                    :running false
                     :world   (world/new-world)})
 ;
+
+(declare animate)
+
+(defn toggle-running []
+  (swap! app-state update :running not)
+  (animate))
+
 (defn hello-world []
   [:div
-   [:h1 (str ">>> " (:counter @app-state) " - " (:loser (:world @app-state)))]
+   [:h2 "The Iterated Prisoner's Dilemma"]
+
+   [:div
+    [:span {:style {:margin 10}} (str "Iteration: " (:counter @app-state))]
+    [:input {:type     "button"
+             :value    (if (:running @app-state) "Pause" "Resume")
+             :on-click toggle-running
+             :style    {:margin 10}}]]
+
 
    ;[:canvas {:width "900" :height "500" :id "cv"}]
    [:svg {:style    {:border "1px solid black"
@@ -37,6 +53,26 @@
                              :width  size
                              :height size
                              :style  {"fill" color}}]))))]
+
+   [:div
+    "Scores:"
+    (let [max-score (apply max (vals (:scores (:world @app-state))))]
+      (for [[team score] (:scores (:world @app-state))]
+
+        (let [[_ color label] (team strategies/strategies)]
+          [:div {:key (name team)
+                 :style {:background-color "rgb(50,50,50)"
+                         :width "100%"}}
+           [:div {:style {:background-color color
+                          :color "black"
+                          :width            (str (/ score max-score 0.01) "%")}}
+            label]])
+
+        ))
+
+    ]
+
+
    ])
 
 (defn render []
@@ -90,7 +126,12 @@
 
 (defn animate []
   (tick!)
-  (js/setTimeout #(.requestAnimationFrame js/window animate) 10)
+  (when (:running @app-state)
+
+    (.requestAnimationFrame js/window animate)
+    ;(js/setTimeout #(.requestAnimationFrame js/window animate) 10)
+
+    )
   ;(.requestAnimationFrame js/window animate)
   )
 
@@ -100,6 +141,11 @@
   ;(js/setInterval tick! 500)
   ;(js/setTimeout tick! 500)
   (animate)
+  )
+
+(defn pause [e]
+
+  (println e)
   )
 
 (defonce start
