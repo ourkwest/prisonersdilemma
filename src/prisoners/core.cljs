@@ -19,6 +19,8 @@
                     :world   (world/new-world)})
 ;
 
+(def debug (atom 0))
+
 (declare animate)
 
 (defn toggle-running []
@@ -52,7 +54,8 @@
                              :y      y
                              :width  size
                              :height size
-                             :style  {"fill" color}}]))))]
+                             :style  {"fill" color}
+                             :on-click #(reset! debug (world/find-index [x y]))}]))))]
 
    [:div
     "Scores:"
@@ -66,9 +69,22 @@
            [:div {:style {:background-color color
                           :color "black"
                           :width            (str (/ score max-score 0.01) "%")}}
-            label]])
+            label]])))]
 
-        ))
+   [:div "Debug:" (-> @app-state :world :nodes (get @debug) str)
+
+    ;(str (take 3 (-> @app-state :world :inter)))
+    (doall (for [[i1 i2 h] (-> @app-state :world :inter) :when (or (= i1 @debug)
+                                                                    (= i2 @debug))]
+              (let [nodes (-> @app-state :world :nodes)
+                    n1 (get nodes i1)
+                    n2 (get nodes i2)
+                    [_ _ label1] ((:team n1) strategies/strategies)
+                    [_ _ label2] ((:team n2) strategies/strategies)]
+
+              [:div {:key (str i1 "." i2)} label1 " vs. " label2 ": " (str h)]))
+
+                )
 
     ]
 
