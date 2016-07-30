@@ -109,7 +109,7 @@
                        (* size w)
                        (* size h)))))))
 
-(reagent/render-component [hello-world] (. js/document (getElementById "app")))
+;(reagent/render-component [hello-world] (. js/document (getElementById "app")))
 
 
 ;(defn on-js-reload []
@@ -120,16 +120,15 @@
 
 
 
-(defn tick! []
-  (swap! app-state update :counter inc)
-  ;(println "Ticking... 1__" (system-time))
-  (swap! app-state dilemma/play)
-  ;(js/setTimeout tick! 10)
-  ;(render)
-  ;(println ".")
-  ;(println "Ticking... __3" (system-time))
-  ;(println (update-in @app-state [:world :inter] (fn [x] (map #(take 2 %) x))))
-  )
+(defn tick! [app-state]
+  (-> app-state
+      (update :counter inc)
+      (dilemma/play)
+      ;(dilemma/play)
+      ;(dilemma/play)
+      ;(dilemma/play)
+      ;(dilemma/play)
+      ))
 ;
 ;;(js/setInterval tick! 1500)
 ;
@@ -141,7 +140,7 @@
   )
 
 (defn animate []
-  (tick!)
+  (swap! app-state tick!)
   (when (:running @app-state)
 
     (.requestAnimationFrame js/window animate)
