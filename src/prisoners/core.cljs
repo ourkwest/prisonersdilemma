@@ -45,31 +45,47 @@
                      :height "50%"}
           :view-box (string/join " " [0 0 world/world-w world/world-h])}
 
-    (let [{:keys [min max nodes]} (:world @app-state)
-          score-range (- max min)]
-      (into [:g] (for [{:keys [x y score team]} nodes]
-                   (let [color (second (team strategies/strategies))
-                         size (/ (- score min) score-range)]
-                     [:rect {:x      x
-                             :y      y
-                             :width  size
-                             :height size
-                             :style  {"fill" color}
-                             :on-click #(reset! debug (world/find-index [x y]))}]))))]
+    (let [{:keys [min-score max-score nodes inter]} (:world @app-state)
+          score-range (- max-score min-score)]
+      (into [:g]
+            (concat (for [[i1 i2] inter]
+                      (let [n1 (get nodes i1)
+                            n2 (get nodes i2)]
+                        (if (= (:team n1) (:team n2))
+                          [:line {:x1    (+ 0.5 (:x n1))
+                                  :y1    (+ 0.5 (:y n1))
+                                  :x2    (+ 0.5 (max (:x n1) (:x n2)))
+                                  :y2    (+ 0.5 (max (:y n1) (:y n2)))
+                                  :style {:stroke (second ((:team n1) strategies/strategies))
+                                          "stroke-width" 0.5}}])))
 
-   [:div
-    "Scores:"
-    (let [max-score (apply max (vals (:scores (:world @app-state))))]
-      (for [[team score] (:scores (:world @app-state))]
+                    [[:rect {:x 0 :y 0 :width 100 :height 100 :style {:fill "rgba(0,0,0,0.75)"}}]]
+                    ;(into [:g])
+                    (for [{:keys [x y score team]} nodes]
+                      (let [color (second (team strategies/strategies))
+                            size (/ (- score min-score) score-range)
+                            inset (/ (- 1 size) 2)]
+                        [:rect {:x        (+ x inset)
+                                :y        (+ y inset)
+                                :width    size
+                                :height   size
+                                :style    {"fill" color}
+                                :on-click #(reset! debug (world/find-index [x y]))}]))))
+      )
 
-        (let [[_ color label] (team strategies/strategies)]
-          [:div {:key (name team)
-                 :style {:background-color "rgb(50,50,50)"
-                         :width "100%"}}
-           [:div {:style {:background-color color
-                          :color "black"
-                          :width            (str (/ score max-score 0.01) "%")}}
-            label]])))]
+    [:div
+     "Scores:"
+     (let [max-score (apply max (vals (:scores (:world @app-state))))]
+       (for [[team score] (:scores (:world @app-state))]
+
+         (let [[_ color label] (team strategies/strategies)]
+           [:div {:key   (name team)
+                  :style {:background-color "rgb(50,50,50)"
+                          :width            "100%"}}
+            [:div {:style {:background-color color
+                           :color            "black"
+                           :width            (str (/ score max-score 0.01) "%")}}
+             label]])))]]
 
    [:div "Debug:" (-> @app-state :world :nodes (get @debug) str)
 
@@ -96,13 +112,13 @@
         w (/ (.-width cnv) world/world-w)
         h (/ (.-height cnv) world/world-h)
         ctx (.getContext cnv "2d")
-        {:keys [min max nodes]} (:world @app-state)
-        score-range (- max min)]
+        {:keys [min-score max-score nodes]} (:world @app-state)
+        score-range (- max-score min-score)]
 
     (doseq [[this-team [_ color]] strategies/strategies]
       (set! (.-strokeStyle ctx) color)
       (doseq [{:keys [team x y score]} nodes :when (= team this-team)]
-        (let [size (/ (- score min) score-range)]
+        (let [size (/ (- score min-score) score-range)]
           (.strokeRect ctx
                        (* x w)
                        (* y h)

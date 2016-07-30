@@ -38,7 +38,7 @@
            [index nindex []]))))
 
 (defn new-world []
-  {:max 100
-   :min 0
+  {:max-score 100
+   :min-score 0
    :nodes (new-nodes)
    :inter (new-inter)})

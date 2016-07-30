@@ -38,7 +38,7 @@
                          #(get nodes %)
                          world/find-index)
                    (world/all-neighbours x y))
-        options (into teams strategies/teams)]
+        options (concat teams strategies/teams)]
     (rand-nth options)))
 
 (defn find-limits [{:keys [nodes] :as world}]
@@ -48,7 +48,7 @@
         swap (.indexOf scores new-min)]
     ;(println new-min " --> " new-max)
     (-> world
-        (assoc :min new-min :max new-max :swap swap)
+        (assoc :min-score new-min :max-score new-max :swap swap)
         (assoc-in [:nodes swap :team] (pick-team nodes swap))
         (assoc-in [:nodes swap :score] (Math/round (/ (+ new-min new-max) 2))))))
 
