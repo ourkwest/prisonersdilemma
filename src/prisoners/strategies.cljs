@@ -24,6 +24,19 @@
     :co-op
     :betray))
 
+(defn probabilistic [_ [m1] _ [m2]]
+  (let [p1 (/ 11 13)
+        p2 (/ 1 2)
+        p3 (/ 7 26)
+        p4 0
+        p (get-in {:co-op {:co-op p1
+                           :betray p2}
+                   :betray {:co-op p3
+                            :betray p4}} [m1 m2])]
+    (if (> p (rand))
+      :co-op
+      :betray)))
+
 (def strategies
   {:always-co-op          [always-co-op "rgb(0,250,0)" "Always Co-operate"]
    :always-betray         [always-betray "rgb(250,0,0)" "Always Betray"]
@@ -31,9 +44,10 @@
    :random-like-you       [random-like-you "rgb(200,0,250)" "Random Like You +"]
    :random-like-you-nasty [random-like-you-nasty "rgb(250,0,200)" "Random Like You -"]
    :tit-for-tat           [tit-for-tat "rgb(200,150,250)" "Tit For Tat"]
-   :xenophobic            [xenophobic "rgb(50,50,250)" "Xenophobic 1"]
-   :xenophobic2            [xenophobic "rgb(0,0,150)" "Xenophobic 2"]
-   :xenophobic3            [xenophobic "rgb(150,150,250)" "Xenophobic 3"]
+   ;:xenophobic            [xenophobic "rgb(50,50,250)" "Xenophobic 1"]
+   ;:xenophobic2            [xenophobic "rgb(0,0,150)" "Xenophobic 2"]
+   ;:xenophobic3            [xenophobic "rgb(150,150,250)" "Xenophobic 3"]
+   :probabilistic            [probabilistic "rgb(250,150,150)" "Probabilistic"]
    }
   ;(into {} [random/entry
   ;          always-co-op/entry

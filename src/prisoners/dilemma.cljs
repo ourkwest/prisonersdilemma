@@ -3,9 +3,9 @@
             [prisoners.world :as world]))
 
 
-(def payoffs {:co-op {:co-op [2 2]
-                      :betray [0 3]}
-              :betray {:co-op  [3 0]
+(def payoffs {:co-op {:co-op [3 3]
+                      :betray [0 5]}
+              :betray {:co-op  [5 0]
                        :betray [1 1]}})
 
 (defn add-history [history m1 m2]
