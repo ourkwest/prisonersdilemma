@@ -3,7 +3,8 @@
             [clojure.string :as string]
             [prisoners.world :as world]
             [prisoners.dilemma :as dilemma]
-            [prisoners.strategies :as strategies]))
+            [prisoners.strategies :as strategies]
+            [prisoners.pre-amble :as pre-amble]))
 
 (enable-console-print!)
 
@@ -21,9 +22,14 @@
   (swap! app-state update :running not)
   (animate))
 
+
+
+(defn matrix-view []
+  [:div [:h2 "The Iterated Prisoner's Dilemma"]])
+
 (defn hello-world []
   [:div
-   [:h2 "The Iterated Prisoner's Dilemma"]
+   [:h2 "The Territorial Prisoner's Dilemma"]
 
    [:div
     [:span {:style {:margin 10}} (str "Iteration: " (:counter @app-state))]
@@ -32,8 +38,7 @@
              :on-click toggle-running
              :style    {:margin 10}}]]
 
-   [:svg {:style    {:border "1px solid black"
-                     :width  "40%"
+   [:svg {:style    {:width  "40%"
                      :height "50%"}
           :view-box (string/join " " [0 0 world/world-w world/world-h])}
     (let [{:keys [min-score max-score nodes inter]} (:world @app-state)
@@ -48,7 +53,7 @@
                                   :x2    (+ 0.5 (max (:x n1) (:x n2)))
                                   :y2    (+ 0.5 (max (:y n1) (:y n2)))
                                   :style {:stroke (second ((:team n1) strategies/strategies))
-                                          "stroke-width" 0.5}}])))
+                                          "strokeWidth" 0.5}}])))
                     [[:rect {:x 0 :y 0 :width 100 :height 100 :style {:fill "rgba(0,0,0,0.75)"}}]]
                     (for [{:keys [x y score team]} nodes]
                       (let [color (second (team strategies/strategies))
@@ -89,18 +94,21 @@
       (update :counter inc)
       (dilemma/play)))
 
+(defn animate []
+  (when (:running @app-state)
+    (swap! app-state tick!)
+    (.requestAnimationFrame js/window animate)))
+
 (defn on-js-reload []
   (println "Reloaded...")
   (reset! app-state (new-state))
-  (reagent/render-component [hello-world] (. js/document (getElementById "app"))))
+  (reagent/render-component [pre-amble/pre-amble] (. js/document (getElementById "pre-amble")))
+  (reagent/render-component [matrix-view] (. js/document (getElementById "matrix-view")))
+  (reagent/render-component [hello-world] (. js/document (getElementById "app")))
 
-(defn animate []
-  (swap! app-state tick!)
-  (when (:running @app-state)
-    (.requestAnimationFrame js/window animate)))
+  )
 
 (defn init []
-  (on-js-reload)
-  (animate))
+  (on-js-reload))
 
 (defonce start (init))
