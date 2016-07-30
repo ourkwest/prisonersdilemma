@@ -9,7 +9,7 @@
                        :betray [1 1]}})
 
 (defn add-history [history m1 m2]
-  (take 10 (conj history [m1 m2])))
+  (vec (take 10 (cons [m1 m2] history))))
 
 (defn rplay [world [i i1 i2 history]]
   (let [nodes (:nodes world)
