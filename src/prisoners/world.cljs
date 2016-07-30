@@ -2,8 +2,8 @@
   (:require [prisoners.strategies :as strategies]))
 
 
-(def world-h 25)
-(def world-w 35)
+(def world-h 20)
+(def world-w 30)
 
 (defn random-team []
   (rand-nth (keys strategies/strategies)))
