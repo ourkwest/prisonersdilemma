@@ -13,13 +13,19 @@
 (defn tit-for-tat [_ _ _ h2]
   (or (first h2) :co-op))
 
+(defn tit-for-2-tats [_ _ _ h2]
+  (if (and (= (first h2) :betray)
+           (= (second h2) :betray))
+    :betray
+    :co-op))
+
 (defn random-like-you [_ _ _ h2]
   (rand-nth (cons :co-op h2)))
 
 (defn random-like-you-nasty [_ _ _ h2]
   (rand-nth (cons :betray h2)))
 
-(defn xenophobic [t1 _ t2 _]
+(defn partisan [t1 _ t2 _]
   (if (= t1 t2)
     :co-op
     :betray))
@@ -41,12 +47,13 @@
   {:always-co-op          [always-co-op "rgb(0,250,0)" "Always Co-operate"]
    :always-betray         [always-betray "rgb(250,0,0)" "Always Betray"]
    :random50              [random50 "rgb(200,150,50)" "Random 0.5"]
-   :random-like-you       [random-like-you "rgb(200,0,250)" "Random Like You +"]
-   :random-like-you-nasty [random-like-you-nasty "rgb(250,0,200)" "Random Like You -"]
+   :random-like-you       [random-like-you "rgb(250,250,0)" "Random Like You +"]
+   :random-like-you-nasty [random-like-you-nasty "rgb(250,128,0)" "Random Like You -"]
    :tit-for-tat           [tit-for-tat "rgb(200,150,250)" "Tit For Tat"]
-   ;:xenophobic            [xenophobic "rgb(50,50,250)" "Xenophobic 1"]
-   ;:xenophobic2            [xenophobic "rgb(0,0,150)" "Xenophobic 2"]
-   ;:xenophobic3            [xenophobic "rgb(150,150,250)" "Xenophobic 3"]
+   :tit-for-2-tats        [tit-for-2-tats "rgb(204,51,255)" "Tit For Two Tats"]
+   ;:partisan              [partisan "rgb(100,100,250)" "Partisan 1"]
+   ;:partisan2             [partisan "rgb(150,150,250)" "Partisan 2"]
+   ;:partisan3             [partisan "rgb(200,200,250)" "Partisan 3"]
    :probabilistic            [probabilistic "rgb(250,150,150)" "Probabilistic"]
    }
   ;(into {} [random/entry
