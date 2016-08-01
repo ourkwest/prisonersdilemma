@@ -5,3 +5,10 @@ body {
     background-color: black;
     font-family: "Lucida Console", Monaco, monospace;
 }
+
+h1 {
+    color: rgb(250,250,250);
+}
+h2 {
+    color: rgb(200,200,200);
+}
