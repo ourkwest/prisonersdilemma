@@ -4,7 +4,8 @@
             [prisoners.world :as world]
             [prisoners.dilemma :as dilemma]
             [prisoners.strategies :as strategies]
-            [prisoners.pre-amble :as pre-amble]))
+            [prisoners.pre-amble :as pre-amble]
+            [prisoners.iterated :as iterated]))
 
 (enable-console-print!)
 
@@ -22,14 +23,9 @@
   (swap! app-state update :running not)
   (animate))
 
-
-
-(defn matrix-view []
-  [:div [:h2 "The Iterated Prisoner's Dilemma"]])
-
 (defn hello-world []
   [:div
-   [:h2 "The Territorial Prisoner's Dilemma"]
+   [:h1 "The Territorial Prisoner's Dilemma"]
 
    [:div
     [:span {:style {:margin 10}} (str "Iteration: " (:counter @app-state))]
@@ -103,7 +99,7 @@
   (println "Reloaded...")
   (reset! app-state (new-state))
   (reagent/render-component [pre-amble/pre-amble] (. js/document (getElementById "pre-amble")))
-  (reagent/render-component [matrix-view] (. js/document (getElementById "matrix-view")))
+  (reagent/render-component [iterated/matrix-view] (. js/document (getElementById "matrix-view")))
   (reagent/render-component [hello-world] (. js/document (getElementById "app")))
 
   )

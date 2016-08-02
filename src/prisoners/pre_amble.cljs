@@ -2,10 +2,10 @@
   (:require [reagent.core :refer [atom]]))
 
 
-(def state (atom [nil nil]))
+(def state (atom [nil nil nil]))
 
-(defn dim [a b]
-  (reset! state [a b]))
+(defn dim [a b player]
+  (reset! state [a b player]))
 
 (defn pre-amble []
 
@@ -22,7 +22,9 @@
         color-c-dim "rgb(20,75,20)"
         color-d-dim "rgb(75,20,20)"
 
-        [a b] @state
+        [a b player] @state
+        a-only (= player "a")
+        b-only (= player "b")
         a-co-op (not= a "betray")
         a-betray (not= a "co-op")
         b-co-op (not= b "betray")
@@ -36,12 +38,12 @@
       "You are held in separate cells and cannot communicate with each other. "
       "The guard gives you both an ultimatum: "
       [:ul
-       [:li [:span {:style {:color color-d}} "Betray"] " the other prisoner by giving evidence against them and you walk free."]
-       [:li [:span {:style {:color color-c}} "Co-operate"] " with the other prisoner by keeping quiet and serving your current sentence."]]
+       [:li [:span {:style {:color color-d}} "Betray"] " the other prisoner by giving evidence against them and you walk free. " [:span {:class :brighter} "(5 Points)"]]
+       [:li [:span {:style {:color color-c}} "Co-operate"] " with the other prisoner by keeping quiet and serving your current sentence. " [:span {:class :brighter} "(3 Points)"]]]
       "But:"
       [:ul
-       [:li "If you both betray each other then you both get a slightly worse sentence."]
-       [:li "If you co-operate and the other prisoner betrays you then you will get the worst possible sentence."]]]
+       [:li "If you both betray each other then you both get a slightly worse sentence. " [:span {:class :brighter} "(1 Point)"]]
+       [:li "If you co-operate and the other prisoner betrays you then you will get the worst possible sentence. " [:span {:class :brighter} "(0 Points)"]]]]
 
      [:h2 "The Payoffs"]
 
@@ -49,18 +51,19 @@
                        :height "50%"}
             :view-box "-1 -1 61.5 61.5"}
 
-      [:g {:on-mouse-leave #(dim nil nil)}
+      [:g {:on-mouse-leave #(dim nil nil nil)}
 
        [:rect {:x     x2 :y y0 :width (- x4 x2) :height (- y1 y0)
                :style {:stroke lines
-                       :fill color-a}}]
+                       :fill (if b-only color-a-dim color-a)}
+               :on-mouse-enter #(dim nil nil "a")}]
        [:rect {:x     x2 :y y1 :width (- x3 x2) :height (- y2 y1)
                :style {:stroke lines
-                       :fill   (if a-co-op color-c color-c-dim)
+                       :fill   (if (and a-co-op (not b-only)) color-c color-c-dim)
                        }}]
        [:rect {:x     x3 :y y1 :width (- x4 x3) :height (- y2 y1)
                :style {:stroke lines
-                       :fill (if a-betray color-d color-d-dim)}}]
+                       :fill (if (and a-betray (not b-only)) color-d color-d-dim)}}]
 
        [:text {:x           (+ x2 5)
                :y           (- y1 2.5)
@@ -83,13 +86,14 @@
 
        [:rect {:x     x0 :y y2 :width (- x1 x0) :height (- y4 y2)
                :style {:stroke lines
-                       :fill color-b}}]
+                       :fill (if a-only color-b-dim color-b)}
+               :on-mouse-enter #(dim nil nil "b")}]
        [:rect {:x     x1 :y y2 :width (- x2 x1) :height (- y3 y2)
                :style {:stroke lines
-                       :fill (if b-co-op color-c color-c-dim)}}]
+                       :fill (if (and b-co-op (not a-only)) color-c color-c-dim)}}]
        [:rect {:x     x1 :y y3 :width (- x2 x1) :height (- y4 y3)
                :style {:stroke lines
-                       :fill (if b-betray color-d color-d-dim)}}]
+                       :fill (if (and b-betray (not a-only)) color-d color-d-dim)}}]
 
        [:text {:x           (+ x1 5)
                :y           (- y4 2.5)
@@ -122,15 +126,15 @@
           [:polygon {:points         (str xa \, ya \space
                                           xb \, yb \space
                                           xb \, ya)
-                     :fill           a-bg
+                     :fill           (if b-only color-a-dim a-bg)
                      :stroke         lines
-                     :on-mouse-enter #(dim move-a move-b)}]
+                     :on-mouse-enter #(dim move-a move-b nil)}]
           [:polygon {:points         (str xa \, ya \space
                                           xb \, yb \space
                                           xa \, yb)
-                     :fill           b-bg
+                     :fill           (if a-only color-b-dim b-bg)
                      :stroke         lines
-                     :on-mouse-enter #(dim move-a move-b)}]
+                     :on-mouse-enter #(dim move-a move-b nil)}]
           [:text {:x           (+ xa 12)
                   :y           (- yb 10)
                   :font-family "Verdana"
@@ -140,4 +144,11 @@
                   :y           (- yb 2)
                   :font-family "Verdana"
                   :font-size   "10"
-                  :fill        "black"} bs]])]]]))
+                  :fill        "black"} bs]])]]
+
+     [:h2 "The Result"]
+     [:ul
+      [:li "The best combined payoff comes if both players " [:span {:style {:color color-c}} "co-operate"] "."]
+      [:li "But it is always better for each player to " [:span {:style {:color color-d}} "betray"] " their opponent in a single game of the Prisoner's Dilemma."]]
+
+     ]))
