@@ -1,7 +1,9 @@
 (ns prisoners.iterated
   (:require [reagent.core :refer [atom]]
             [prisoners.strategies :as strategies]
-            [prisoners.dilemma :as dilemma]))
+            [prisoners.dilemma :as dilemma]
+            [cljs.tools.reader :refer [read-string]]
+            [cljs.js :refer [empty-state eval js-eval]]))
 
 
 
@@ -23,6 +25,30 @@
 
 (defn remove-strategy [team]
   (swap! state update :strategies #(remove (fn [[x _]] (= x team)) %)))
+
+
+(defn eval-str [s]
+  (:value
+    (eval (empty-state)
+          (read-string s)
+          {:eval       js-eval
+           :source-map true
+           :context    :expr}
+          identity)))
+
+(defn add-strategy []
+
+  (let [code (.-value (. js/document (getElementById "incoming-code")))]
+    (println code)
+    ;(println (read-string code))
+    (let [my-function (eval-str code)]
+      (println my-function)
+      (println (my-function 5))
+      )
+
+    )
+
+  )
 
 (defn re-run []
   (swap! state update :touch inc))
@@ -138,6 +164,20 @@
                    )])]]]
 
      [:span "TODO: finish this bit!"]
+
+     [:div
+
+      [:textarea {:id "incoming-code"
+                  :value "(fn [x] (inc x))"}]
+
+      [:input {:type     "button"
+               :value    "Add"
+               :on-click add-strategy
+               :style    {:margin 10}}]
+      ;[:textarea {}
+       ;"(defn foo [x] (println x))"
+       ;]
+      ]
 
      ]))
 
