@@ -28,7 +28,11 @@
         a-co-op (not= a "betray")
         a-betray (not= a "co-op")
         b-co-op (not= b "betray")
-        b-betray (not= b "co-op")]
+        b-betray (not= b "co-op")
+
+        betray [:span {:style {:color color-d}} "Betray"]
+        co-op [:span {:style {:color color-c}} "Co-operate"]
+        ]
 
     [:div
      [:h1 "The Prisoner's Dilemma"]
@@ -37,13 +41,26 @@
       "You and another person are arrested and given prison sentences. "
       "You are held in separate cells and cannot communicate with each other. "
       "The guard gives you both an ultimatum: "
+
       [:ul
-       [:li [:span {:style {:color color-d}} "Betray"] " the other prisoner by giving evidence against them and you walk free. " [:span {:class :brighter} "(5 Points)"]]
-       [:li [:span {:style {:color color-c}} "Co-operate"] " with the other prisoner by keeping quiet and serving your current sentence. " [:span {:class :brighter} "(3 Points)"]]]
-      "But:"
+       [:li betray " the other prisoner by giving evidence against them in exchange for a reduced sentence."]
+       [:li co-op " with the other player and keep your mouth shut."]]
+
       [:ul
-       [:li "If you both betray each other then you both get a slightly worse sentence. " [:span {:class :brighter} "(1 Point)"]]
-       [:li "If you co-operate and the other prisoner betrays you then you will get the worst possible sentence. " [:span {:class :brighter} "(0 Points)"]]]]
+       [:li "If you " co-op " with the other player and they " co-op " with you then you serve your current sentence. " [:span {:class :brighter} "(3 Points)"]]
+       [:li "If you " co-op " with the other player and they " betray " you then you get the worst possible sentence. " [:span {:class :brighter} "(0 Point)"]]
+       [:li "If you " betray " the other player and they " co-op " with you then you walk free. This is the best outcome for you." [:span {:class :brighter} "(5 Points)"]]
+       [:li "If you " betray " the other player and they " betray " you then you get a slightly worse sentence. " [:span {:class :brighter} "(1 Point)"]]
+       ]
+
+      ;[:ul
+      ; [:li [:span {:style {:color color-d}} "Betray"] " the other prisoner by giving evidence against them and you walk free. " [:span {:class :brighter} "(5 Points)"]]
+      ; [:li [:span {:style {:color color-c}} "Co-operate"] " with the other prisoner by keeping quiet and serving your current sentence. " [:span {:class :brighter} "(3 Points)"]]]
+      ;"But:"
+      ;[:ul
+      ; [:li "If you both betray each other then you both get a slightly worse sentence. " [:span {:class :brighter} "(1 Point)"]]
+      ; [:li "If you co-operate and the other prisoner betrays you then you will get the worst possible sentence. " [:span {:class :brighter} "(0 Points)"]]]
+      ]
 
      [:h2 "The Payoffs"]
 
