@@ -21,7 +21,7 @@
 
 (def state (atom {:touch 0
                   :iterations 100
-                  :strategies (sort-by (comp last last) strategies/strategies)}))
+                  :strategies strategies/strategy-by-index}))
 
 (defn remove-strategy [team]
   (swap! state update :strategies #(remove (fn [[x _]] (= x team)) %)))
@@ -53,35 +53,38 @@
 (defn re-run []
   (swap! state update :touch inc))
 
-(defn play-iterations [team-1 team-2 n]
-  (let [function-1 (first (strategies/strategies team-1))
-        function-2 (first (strategies/strategies team-2))]
-    (loop [history-1 []
-           history-2 []
-           score-1 0
-           iterations n]
-      (if (= 0 iterations)
-        score-1
-        (let [move-1 (function-1 team-1 history-1 team-2 history-2)
-              move-2 (function-2 team-2 history-2 team-1 history-1)
-              new-history-1 (cons move-1 history-1)
-              new-history-2 (cons move-2 history-2)
-              this-score-1 (get-in dilemma/payoffs [move-1 move-2 0])
-              new-score-1 (+ score-1 this-score-1)]
-          (recur new-history-1 new-history-2 new-score-1 (dec iterations)))))))
+(defn play-iterations [team-1 team-2 function-1 function-2 n]
+  (loop [history-1 []
+         history-2 []
+         score-1 0
+         iterations n]
+    (if (= 0 iterations)
+      score-1
+      (let [move-1 (function-1 team-1 history-1 team-2 history-2)
+            move-2 (function-2 team-2 history-2 team-1 history-1)
+            new-history-1 (cons move-1 history-1)
+            new-history-2 (cons move-2 history-2)
+            this-score-1 (get-in dilemma/payoffs [move-1 move-2 0])
+            new-score-1 (+ score-1 this-score-1)]
+        (recur new-history-1 new-history-2 new-score-1 (dec iterations))))))
 
 (defn play-games [strategies iterations]
-  (into {} (for [[team-1 _] strategies]
-             [team-1 (into {} (for [[team-2 _] strategies]
-                                [team-2 (play-iterations team-1 team-2 iterations)]))])))
+  (into {}
+        (for [[index-1 [label-1 color-1 make-strategy-1]] strategies]
+          [label-1 (into {} (for [[index-2 [label-2 color-2 make-strategy-2]] strategies]
+                              [label-2 (play-iterations index-1 index-2 (make-strategy-1) (make-strategy-2) iterations)]))]))
+  ;(into {} (for [[team-1 _ make-strategy-1] strategies]
+  ;           [team-1 (into {} (for [[team-2 _ make-strategy-2] strategies]
+  ;                              [team-2 (play-iterations team-1 team-2 (make-strategy-1) (make-strategy-2) iterations)]))]))
+  )
 
 (defn matrix-view []
 
   (let [strategies (:strategies @state)
         iterations (:iterations @state)
         games (play-games strategies iterations)
-        totals (into {} (for [[team-1 _] strategies]
-                          [team-1 (reduce + (vals (get games team-1)))]))
+        totals (into {} (for [[team-1 m] games]
+                          [team-1 (reduce + (vals m))]))
         max-score-per-game (* 5 iterations)
         exageration-factor 0.95
         smallest-total (* (apply min (vals totals)) exageration-factor)
@@ -105,7 +108,7 @@
                             :value "Re-run"
                             :on-click re-run}]]
                   [:td {:key "empty-header-2"}]]
-                 (for [[_ [_ color-2 label-2]] strategies]
+                 (for [[_ [label-2 color-2]] strategies]
                    [:td {:key   (str "header-" label-2)
                          :style {:background-color color-2
                                  :color            :black
@@ -118,7 +121,7 @@
                                 :padding          5}} (space 5 "Total Score" 5)]])]]
 
        [:tbody
-        (for [[team-1 [_ color-1 label-1]] strategies]
+        (for [[team-1 [label-1 color-1]] strategies]
           [:tr {:key   (str "tr-" label-1)
                 :style {:background-color color-1 :color :black}}
            (concat [[:td {:key (str "td-button-" label-1)}
@@ -128,8 +131,8 @@
                               :style    {:margin 10}}]]
                     [:td {:key   (str "td-" label-1)
                           :style {:border-bottom (str "1px solid " color-1)}} label-1]]
-                   (for [[team-2 [_ color-2 label-2]] strategies]
-                     (let [score-1 (get-in games [team-1 team-2])
+                   (for [[team-2 [label-2 color-2]] strategies]
+                     (let [score-1 (get-in games [label-1 label-2])
                            relative-score (/ score-1 max-score-per-game)
                            scaled-score (Math/round (* 512 relative-score))
                            color (str "rgb("
@@ -167,6 +170,13 @@
 
      [:div
 
+      [:textarea {:id "incoming-name"
+                  :value "Random Pick"}]
+
+      [:input {:id "incoming-color" :type :color}]
+
+      [:textarea {:id "incoming-colour"
+                  :value "200,250,200"}]
       [:textarea {:id "incoming-code"
                   :value "(fn [x] (inc x))"}]
 

@@ -2,14 +2,27 @@
   (:require [prisoners.strategies :as strategies]))
 
 
-(def world-h 20)
-(def world-w 30)
+(def world-h 15)
+(def world-w 15)
 
-(defn random-team []
-  (rand-nth (keys strategies/strategies)))
+(defn random-team [x y]
+  (rand-int (count strategies/strategies))
+  ;(nth (keys strategies/strategies)
+  ;     (int (* (count (keys strategies/strategies))
+  ;             (/ x world-w))))
+  )
+
+(defn add-team [node team]
+  (let [[_ color make-strategy] (strategies/strategies team)]
+    (assoc node :team team
+                :color color
+                :strategy (make-strategy))))
 
 (defn new-node [x y]
-  {:x x :y y :score 0 :team (random-team)})
+  (add-team {:x        x
+             :y        y
+             :score    0}
+            (random-team x y)))
 
 (defn new-nodes []
   (vec (for [x (range world-w) y (range world-h)]

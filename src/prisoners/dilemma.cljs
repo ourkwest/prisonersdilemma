@@ -17,7 +17,7 @@
                          #(get nodes %)
                          world/find-index)
                    (world/all-neighbours x y))
-        options (concat teams strategies/teams)]
+        options (concat teams teams teams teams teams (range (count strategies/strategies)))]
     (rand-nth options)))
 
 (defn find-limits [{:keys [nodes] :as world}]
@@ -27,12 +27,23 @@
         swap (.indexOf scores new-min)]
     (-> world
         (assoc :min-score new-min :max-score new-max :swap swap)
-        (assoc-in [:nodes swap :team] (pick-team nodes swap))
-        (assoc-in [:nodes swap :score] (Math/round (/ (+ new-min new-max) 2))))))
+        (assoc-in [:nodes swap :score] (Math/round (+ new-min 100)))
+
+        (update-in [:nodes swap] #(world/add-team % (pick-team nodes swap)))
+        ;(assoc-in [:nodes swap :team] (pick-team nodes swap))
+
+        )))
 
 (defn score-teams [{:keys [nodes] :as world}]
   (assoc world :scores
                (reduce #(update %1 (:team %2) (fnil + 0) (:score %2)) {} nodes)))
+
+(defn add-noise [move]
+  (let [r (rand)]
+    (cond
+      (> r 0.95) :betray
+      (< r 0.05) :co-op
+      :else move)))
 
 (defn pose-dilemmas [{:keys [nodes inter] :as world}]
   (let [t-nodes (transient nodes)
@@ -45,12 +56,12 @@
             t2 (:team node2)
             s1 (:score node1)
             s2 (:score node2)
-            fn1 (first (strategies/strategies t1))
-            fn2 (first (strategies/strategies t2))
+            fn1 (:strategy node1)
+            fn2 (:strategy node2)
             h1 (map first history)
             h2 (map second history)
-            move1 (fn1 t1 h1 t2 h2)
-            move2 (fn2 t2 h2 t1 h1)
+            move1 (add-noise (fn1 t1 h1 t2 h2 i))
+            move2 (add-noise (fn2 t2 h2 t1 h1 i))
             [ds1 ds2] (get-in payoffs [move1 move2])]
         (assoc! t-nodes i1 (assoc node1 :score (+ s1 ds1)))
         (assoc! t-nodes i2 (assoc node2 :score (+ s2 ds2)))

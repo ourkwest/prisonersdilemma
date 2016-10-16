@@ -48,12 +48,11 @@
                                   :y1    (+ 0.5 (:y n1))
                                   :x2    (+ 0.5 (max (:x n1) (:x n2)))
                                   :y2    (+ 0.5 (max (:y n1) (:y n2)))
-                                  :style {:stroke (second ((:team n1) strategies/strategies))
+                                  :style {:stroke (:color n1)
                                           "strokeWidth" 0.5}}])))
                     [[:rect {:x 0 :y 0 :width 100 :height 100 :style {:fill "rgba(0,0,0,0.75)"}}]]
-                    (for [{:keys [x y score team]} nodes]
-                      (let [color (second (team strategies/strategies))
-                            size (/ (- score min-score) score-range)
+                    (for [{:keys [x y score color]} nodes]
+                      (let [size (/ (- score min-score) score-range)
                             inset (/ (- 1 size) 2)]
                         [:rect {:x        (+ x inset)
                                 :y        (+ y inset)
@@ -66,7 +65,7 @@
      (let [max-score (apply max (vals (:scores (:world @app-state))))]
        (for [[team score] (:scores (:world @app-state))]
 
-         (let [[_ color label] (team strategies/strategies)]
+         (let [[label color] (strategies/strategies team)]
            [:div {:key   (name team)
                   :style {:background-color "rgb(50,50,50)"
                           :width            "100%"}}
@@ -81,8 +80,8 @@
               (let [nodes (-> @app-state :world :nodes)
                     n1 (get nodes i1)
                     n2 (get nodes i2)
-                    [_ _ label1] ((:team n1) strategies/strategies)
-                    [_ _ label2] ((:team n2) strategies/strategies)]
+                    [label1] (strategies/strategies (:team n1))
+                    [label2] (strategies/strategies (:team n2))]
               [:div {:key (str i1 "." i2)} label1 " vs. " label2 ": " (str h)])))]])
 
 (defn tick! [app-state]
