@@ -151,7 +151,7 @@
                                        }}
                          score-1]]))
 
-                   (let [total (get totals team-1)
+                   (let [total (get totals label-1)
                          relative-total (Math/round (/ (- total smallest-total) total-range 0.01))]
                      [[:td {:key   (str "total-" label-1)
                             :style {:border-bottom    (str "1px solid " color-1)
