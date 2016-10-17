@@ -63,10 +63,10 @@
     [:div
      "Scores:"
      (let [max-score (apply max (vals (:scores (:world @app-state))))]
-       (for [[team score] (:scores (:world @app-state))]
+       (for [[team score] (sort (:scores (:world @app-state)))]
 
          (let [[label color] (strategies/strategies team)]
-           [:div {:key   (name team)
+           [:div {:key   label
                   :style {:background-color "rgb(50,50,50)"
                           :width            "100%"}}
             [:div {:style {:background-color color
@@ -74,15 +74,16 @@
                            :width            (str (/ score max-score 0.01) "%")}}
              label]])))]]
 
-   [:div "Debug:" (-> @app-state :world :nodes (get @debug) str)
-    (doall (for [[i1 i2 h] (-> @app-state :world :inter) :when (or (= i1 @debug)
-                                                                    (= i2 @debug))]
-              (let [nodes (-> @app-state :world :nodes)
-                    n1 (get nodes i1)
-                    n2 (get nodes i2)
-                    [label1] (strategies/strategies (:team n1))
-                    [label2] (strategies/strategies (:team n2))]
-              [:div {:key (str i1 "." i2)} label1 " vs. " label2 ": " (str h)])))]])
+   ;[:div "Debug:" (-> @app-state :world :nodes (get @debug) str)
+   ; (doall (for [[i1 i2 h] (-> @app-state :world :inter) :when (or (= i1 @debug)
+   ;                                                                 (= i2 @debug))]
+   ;           (let [nodes (-> @app-state :world :nodes)
+   ;                 n1 (get nodes i1)
+   ;                 n2 (get nodes i2)
+   ;                 [label1] (strategies/strategies (:team n1))
+   ;                 [label2] (strategies/strategies (:team n2))]
+   ;           [:div {:key (str i1 "." i2)} label1 " vs. " label2 ": " (str h)])))]
+   ])
 
 (defn tick! [app-state]
   (-> app-state
