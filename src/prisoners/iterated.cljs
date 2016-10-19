@@ -38,26 +38,17 @@
           identity)))
 
 (defn add-strategy []
-  (let [code (.-value (. js/document (getElementById "incoming-code")))]
-    (println code)
-    ;(println (read-string code))
-    (let [my-function (eval-str code)]
-      (println my-function)
-      (println (my-function 5))
-      )))
+  (let [label (.-value (. js/document (getElementById "incoming-label")))
+        color (.-value (. js/document (getElementById "incoming-color")))
+        code (.-value (. js/document (getElementById "incoming-code")))
+        factory (eval-str code)]
+    (swap! state update :strategies assoc label [label color factory])))
 
 (defn add-selected-stategy []
   (let [label (.-value (. js/document (getElementById "select-strategy")))]
     (println label)
     (let [strategy (strategies/strategies-by-label label)]
-      (swap! state update :strategies assoc label strategy))
-
-    ;(println (read-string code))
-    ;(let [my-function (eval-str code)]
-    ;  (println my-function)
-    ;  (println (my-function 5))
-    ;  )
-    ))
+      (swap! state update :strategies assoc label strategy))))
 
 (defn re-run []
   (swap! state update :touch inc))
@@ -195,22 +186,31 @@
          [:option {:key label :value label} label])]
 
 
-      [:br] [:br]
+      [:br]
 
-      [:textarea {:id "incoming-name"
-                  :value "Random Pick"}]
+      [:div {:style {:border        "1px solid white"
+                     :border-radius "10px"
+                     :margin "5px"
+                     :padding "5px"}}
 
-      [:input {:id "incoming-color" :type :color}]
+       " Label: " [:input {:id    "incoming-label"
+                         :type  "text"
+                         :default-value "My First Strategy"}]
+       " Color: " [:input {:id "incoming-color"
+                           :type :color
+                           :default-value (str "#" (.toString (rand-int 16rFFFFFF) 16))}]
+       [:br]
 
-      [:textarea {:id "incoming-colour"
-                  :value "200,250,200"}]
-      [:textarea {:id "incoming-code"
-                  :value "(fn [x] (inc x))"}]
+       [:textarea {:id    "incoming-code"
+                   :cols 80
+                   :rows 20
+                   :default-value "#(fn [team-1 history-1 team-2 history-2]\n  (rand-nth (cons :co-op history-2)))"}]
+       [:br]
 
-      [:input {:type     "button"
-               :value    "Add"
-               :on-click add-strategy
-               :style    {:margin 10}}]
+       [:input {:type     "button"
+                :value    "Add"
+                :on-click add-strategy
+                :style    {:margin 10}}]]
       ;[:textarea {}
        ;"(defn foo [x] (println x))"
        ;]

@@ -9,26 +9,26 @@
    ["Always Co-operate" (rgb 0 255 0) #(fn [& _] :co-op)]
 
    ["Random 50/50" (rgb 150 150 50) #(fn [& _]
-                                  (if (<= 0.5 (rand))
-                                    :co-op
-                                    :betray))]
+                                      (if (<= 0.5 (rand))
+                                        :co-op
+                                        :betray))]
    ["Random Like You +" (rgb 255 250 0) #(fn [_ _ _ h2]
-                                      (rand-nth (cons :co-op h2)))]
+                                          (rand-nth (cons :co-op h2)))]
    ["Random Like You -" (rgb 255 200 50) #(fn [_ _ _ h2]
-                                      (rand-nth (cons :betray h2)))]
+                                           (rand-nth (cons :betray h2)))]
 
    ["Tit For Tat" (rgb 200 150 250) #(fn [_ _ _ h2]
-                                  (or (first h2) :co-op))]
+                                      (or (first h2) :co-op))]
    ["Two Tits For Tat" (rgb 150 100 255) #(fn [_ _ _ h2]
-                                       (if (or (= (first h2) :betray)
-                                               (= (second h2) :betray))
-                                         :betray
-                                         :co-op))]
+                                           (if (or (= (first h2) :betray)
+                                                   (= (second h2) :betray))
+                                             :betray
+                                             :co-op))]
    ["Tit For Two Tats" (rgb 204 51 255) #(fn [_ _ _ h2]
-                                      (if (and (= (first h2) :betray)
-                                               (= (second h2) :betray))
-                                        :betray
-                                        :co-op))]])
+                                          (if (and (= (first h2) :betray)
+                                                   (= (second h2) :betray))
+                                            :betray
+                                            :co-op))]])
 
 (def strategies-by-label
   (into {} (for [[label color factory] strategy-list]
