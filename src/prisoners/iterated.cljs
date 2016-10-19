@@ -6,14 +6,6 @@
             [cljs.js :refer [empty-state eval js-eval]]))
 
 
-
-;; TODO:
-;;   tick boxes to add new pre-defined strategies?
-;;   small editor to view source for them / edit them?
-;;   strategy should be a closure over a function to allow per instance state
-;;   all selected strategies should be played against each other (100 rounds?) in a grid showing the final scores
-;;   user can select the numebr of rounds.
-
 (def nbsp "\u00A0")
 
 (defn space [n-before text n-after]
@@ -166,18 +158,6 @@
                          " "]]]])
                    )])]]]
 
-     [:span "TODO: finish this bit!"]
-
-
-     ;; drop down menu with list of strategies?
-
-     ;; drop down to add directly! (and also pre-fill boxes?)
-
-     ;; select strategy
-     ;;   fills boxes
-
-
-
      [:div
 
       "Add: "
@@ -211,11 +191,6 @@
                 :value    "Add"
                 :on-click add-strategy
                 :style    {:margin 10}}]]
-      ;[:textarea {}
-       ;"(defn foo [x] (println x))"
-       ;]
-      ]
-
-     ]))
+      ]]))
 
 
