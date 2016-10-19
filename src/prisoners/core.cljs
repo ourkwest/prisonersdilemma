@@ -63,9 +63,9 @@
     [:div
      "Scores:"
      (let [max-score (apply max (vals (:scores (:world @app-state))))]
-       (for [[team score] (sort (:scores (:world @app-state)))]
+       (for [[team-label score] (sort (:scores (:world @app-state)))]
 
-         (let [[label color] (strategies/strategies team)]
+         (let [[label color] (strategies/strategies-by-label team-label)]
            [:div {:key   label
                   :style {:background-color "rgb(50,50,50)"
                           :width            "100%"}}

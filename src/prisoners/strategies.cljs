@@ -4,7 +4,7 @@
 (defn rgb [r g b]
   (str "rgb(" r "," g "," b ")"))
 
-(def strategies
+(def strategy-list
   [["Always Betray" (rgb 255 0 0) #(fn [& _] :betray)]
    ["Always Co-operate" (rgb 0 255 0) #(fn [& _] :co-op)]
 
@@ -30,8 +30,17 @@
                                         :betray
                                         :co-op))]])
 
-(def strategy-by-index
-  (into {} (map-indexed vector strategies)))
+(def strategies-by-label
+  (into {} (for [[label color factory] strategy-list]
+             [label [label color factory]])))
+
+
+;(def strategy-by-index
+;  (into {} (map-indexed vector strategies)))
+;
+;(def strategy-index-by-label
+;  (into {} (for [[idx [label _ _]] (map-indexed vector strategies)]
+;             [label idx])))
 
 (defn partisan [t1 _ t2 _ _]
   (if (= t1 t2)

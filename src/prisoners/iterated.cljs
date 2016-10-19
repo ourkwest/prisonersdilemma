@@ -19,12 +19,13 @@
 (defn space [n-before text n-after]
   (apply str (concat (repeat n-before nbsp) [text] (repeat n-after nbsp))))
 
-(def state (atom {:touch 0
-                  :iterations 100
-                  :strategies strategies/strategy-by-index}))
+(def state (atom {:touch           0
+                  :iteration-count 100
+                  :strategies      (select-keys strategies/strategies-by-label
+                                                ["Always Betray" "Always Co-operate"])}))
 
-(defn remove-strategy [team]
-  (swap! state update :strategies #(remove (fn [[x _]] (= x team)) %)))
+(defn remove-strategy [team-label]
+  (swap! state update :strategies dissoc team-label))
 
 
 (defn eval-str [s]
@@ -37,18 +38,26 @@
           identity)))
 
 (defn add-strategy []
-
   (let [code (.-value (. js/document (getElementById "incoming-code")))]
     (println code)
     ;(println (read-string code))
     (let [my-function (eval-str code)]
       (println my-function)
       (println (my-function 5))
-      )
+      )))
 
-    )
+(defn add-selected-stategy []
+  (let [label (.-value (. js/document (getElementById "select-strategy")))]
+    (println label)
+    (let [strategy (strategies/strategies-by-label label)]
+      (swap! state update :strategies assoc label strategy))
 
-  )
+    ;(println (read-string code))
+    ;(let [my-function (eval-str code)]
+    ;  (println my-function)
+    ;  (println (my-function 5))
+    ;  )
+    ))
 
 (defn re-run []
   (swap! state update :touch inc))
@@ -68,24 +77,23 @@
             new-score-1 (+ score-1 this-score-1)]
         (recur new-history-1 new-history-2 new-score-1 (dec iterations))))))
 
-(defn play-games [strategies iterations]
+(defn play-games [strategies iteration-count]
   (into {}
-        (for [[index-1 [label-1 color-1 make-strategy-1]] strategies]
-          [label-1 (into {} (for [[index-2 [label-2 color-2 make-strategy-2]] strategies]
-                              [label-2 (play-iterations index-1 index-2 (make-strategy-1) (make-strategy-2) iterations)]))]))
-  ;(into {} (for [[team-1 _ make-strategy-1] strategies]
-  ;           [team-1 (into {} (for [[team-2 _ make-strategy-2] strategies]
-  ;                              [team-2 (play-iterations team-1 team-2 (make-strategy-1) (make-strategy-2) iterations)]))]))
-  )
+        (for [[_ [label-1 _ make-strategy-1]] strategies]
+          [label-1 (into {}
+                         (for [[_ [label-2 _ make-strategy-2]] strategies]
+                           [label-2 (play-iterations label-1 label-2
+                                                     (make-strategy-1) (make-strategy-2)
+                                                     iteration-count)]))])))
 
 (defn matrix-view []
 
   (let [strategies (:strategies @state)
-        iterations (:iterations @state)
-        games (play-games strategies iterations)
+        iteration-count (:iteration-count @state)
+        games (play-games strategies iteration-count)
         totals (into {} (for [[team-1 m] games]
                           [team-1 (reduce + (vals m))]))
-        max-score-per-game (* 5 iterations)
+        max-score-per-game (* 5 iteration-count)
         exageration-factor 0.95
         smallest-total (* (apply min (vals totals)) exageration-factor)
         largest-total (apply max (vals totals))
@@ -121,17 +129,18 @@
                                 :padding          5}} (space 5 "Total Score" 5)]])]]
 
        [:tbody
-        (for [[team-1 [label-1 color-1]] strategies]
+        (for [[_ [label-1 color-1]] strategies]
           [:tr {:key   (str "tr-" label-1)
                 :style {:background-color color-1 :color :black}}
-           (concat [[:td {:key (str "td-button-" label-1)}
+           (concat [[:td {:key (str "td-button-" label-1)
+                          :style {:border-bottom (str "1px solid " color-1)}}
                      [:input {:type     "button"
                               :value    "Remove"
-                              :on-click #(remove-strategy team-1)
+                              :on-click #(remove-strategy label-1)
                               :style    {:margin 10}}]]
                     [:td {:key   (str "td-" label-1)
                           :style {:border-bottom (str "1px solid " color-1)}} label-1]]
-                   (for [[team-2 [label-2 color-2]] strategies]
+                   (for [[_ [label-2 color-2]] strategies]
                      (let [score-1 (get-in games [label-1 label-2])
                            relative-score (/ score-1 max-score-per-game)
                            scaled-score (Math/round (* 512 relative-score))
@@ -168,7 +177,25 @@
 
      [:span "TODO: finish this bit!"]
 
+
+     ;; drop down menu with list of strategies?
+
+     ;; drop down to add directly! (and also pre-fill boxes?)
+
+     ;; select strategy
+     ;;   fills boxes
+
+
+
      [:div
+
+      "Add: "
+      [:select {:id "select-strategy" :on-change add-selected-stategy}
+       (for [[label] strategies/strategies-by-label]
+         [:option {:key label :value label} label])]
+
+
+      [:br] [:br]
 
       [:textarea {:id "incoming-name"
                   :value "Random Pick"}]

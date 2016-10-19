@@ -5,24 +5,24 @@
 (def world-h 15)
 (def world-w 15)
 
-(defn random-team [x y]
-  (rand-int (count strategies/strategies))
+(defn random-team-label [x y]
+  (rand-nth (keys strategies/strategies-by-label))
   ;(nth (keys strategies/strategies)
   ;     (int (* (count (keys strategies/strategies))
   ;             (/ x world-w))))
   )
 
-(defn add-team [node team]
-  (let [[_ color make-strategy] (strategies/strategies team)]
-    (assoc node :team team
+(defn add-team [node team-label]
+  (let [[_ color factory] (strategies/strategies-by-label team-label)]
+    (assoc node :team team-label
                 :color color
-                :strategy (make-strategy))))
+                :strategy (factory))))
 
 (defn new-node [x y]
   (add-team {:x        x
              :y        y
              :score    0}
-            (random-team x y)))
+            (random-team-label x y)))
 
 (defn new-nodes []
   (vec (for [x (range world-w) y (range world-h)]

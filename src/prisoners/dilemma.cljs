@@ -17,7 +17,7 @@
                          #(get nodes %)
                          world/find-index)
                    (world/all-neighbours x y))
-        options (concat teams teams teams teams teams (range (count strategies/strategies)))]
+        options (concat teams teams teams teams teams (keys strategies/strategies-by-label))]
     (rand-nth options)))
 
 (defn find-limits [{:keys [nodes] :as world}]
