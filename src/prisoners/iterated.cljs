@@ -168,6 +168,10 @@
 
       [:br]
 
+      ;TODO: preset selections of strategies for talk
+      ; demonstrate the effectiveness of a cooperating strategy
+      ; demenstrate the lack of a universally best strategy
+
       [:div {:style {:border        "1px solid white"
                      :border-radius "10px"
                      :margin "5px"

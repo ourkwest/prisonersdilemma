@@ -4,6 +4,8 @@
 (defn rgb [r g b]
   (str "rgb(" r "," g "," b ")"))
 
+(defn make-pavlov [])
+
 (def strategy-list
   [["Always Betray" (rgb 255 0 0) #(fn [& _] :betray)]
    ["Always Co-operate" (rgb 0 255 0) #(fn [& _] :co-op)]
@@ -28,7 +30,14 @@
                                           (if (and (= (first h2) :betray)
                                                    (= (second h2) :betray))
                                             :betray
-                                            :co-op))]])
+                                            :co-op))]
+   ["Tit For Two Tats" (rgb 204 51 255) #(let [switch (volatile! true)]
+                                          (fn [_ _ _ _]
+                                            (if (vswap! switch not)
+                                              :betray
+                                              :co-op)))]
+
+   ])
 
 (def strategies-by-label
   (into {} (for [[label color factory] strategy-list]

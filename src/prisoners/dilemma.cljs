@@ -30,9 +30,13 @@
         (assoc-in [:nodes swap :score] (Math/round (+ new-min 100)))
 
         (update-in [:nodes swap] #(world/add-team % (pick-team nodes swap)))
+
         ;(assoc-in [:nodes swap :team] (pick-team nodes swap))
 
         )))
+
+;TODO: put strategy factories on nodes, but strategies themselves on the interactions/relationships
+;TODO: create a new strategy from the factory when a new relationship is forged.
 
 (defn score-teams [{:keys [nodes] :as world}]
   (assoc world :scores
@@ -49,15 +53,15 @@
   (let [t-nodes (transient nodes)
         t-inter (transient inter)]
     (doseq [i (range (count t-inter))]
-      (let [[i1 i2 history] (nth t-inter i)
+      (let [[i1 i2 pl1 pl2 history] (nth t-inter i)
             node1 (nth t-nodes i1)
             node2 (nth t-nodes i2)
             t1 (:team node1)
             t2 (:team node2)
             s1 (:score node1)
             s2 (:score node2)
-            fn1 (:strategy node1)
-            fn2 (:strategy node2)
+            fn1 (get-in node1 [:players pl1])
+            fn2 (get-in node2 [:players pl2])
             h1 (map first history)
             h2 (map second history)
             move1 (add-noise (fn1 t1 h1 t2 h2 i))
@@ -65,7 +69,7 @@
             [ds1 ds2] (get-in payoffs [move1 move2])]
         (assoc! t-nodes i1 (assoc node1 :score (+ s1 ds1)))
         (assoc! t-nodes i2 (assoc node2 :score (+ s2 ds2)))
-        (assoc! t-inter i [i1 i2 (add-history history move1 move2)])))
+        (assoc! t-inter i [i1 i2 pl1 pl2 (add-history history move1 move2)])))
     (-> world
         (assoc :nodes (persistent! t-nodes))
         (assoc :inter (persistent! t-inter)))))
