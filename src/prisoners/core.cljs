@@ -48,7 +48,7 @@
                                   :y1    (+ 0.5 (:y n1))
                                   :x2    (+ 0.5 (max (:x n1) (:x n2)))
                                   :y2    (+ 0.5 (max (:y n1) (:y n2)))
-                                  :style {:stroke (:color n1)
+                                  :style {:stroke       (:color n1)
                                           "strokeWidth" 0.5}}])))
                     [[:rect {:x 0 :y 0 :width 100 :height 100 :style {:fill "rgba(0,0,0,0.75)"}}]]
                     (for [{:keys [x y score color]} nodes]
@@ -59,20 +59,50 @@
                                 :width    size
                                 :height   size
                                 :style    {"fill" color}
-                                :on-click #(reset! debug (world/find-index [x y]))}])))))
-    [:div
-     "Scores:"
-     (let [max-score (apply max (vals (:scores (:world @app-state))))]
-       (for [[team-label score] (sort (:scores (:world @app-state)))]
+                                :on-click #(reset! debug (world/find-index [x y]))}])))))]
+   [:div
+    "Scores:"
+    (let [max-score (apply max (vals (:scores (:world @app-state))))]
+      (for [[team-label score] (sort (:scores (:world @app-state)))]
 
-         (let [[label color] (strategies/strategies-by-label team-label)]
-           [:div {:key   label
-                  :style {:background-color "rgb(50,50,50)"
-                          :width            "100%"}}
-            [:div {:style {:background-color color
-                           :color            "black"
-                           :width            (str (/ score max-score 0.01) "%")}}
-             label]])))]]
+        (let [[label color] (strategies/strategies-by-label team-label)]
+          [:div {:key   label
+                 :style {:background-color "rgb(50,50,50)"
+                         :width            "100%"}}
+           [:div {:style {:background-color color
+                          :color            "black"
+                          :width            (str (/ score max-score 0.01) "%")}}
+            label]])))]
+
+   [:h2 "The Result"]
+   [:ul
+    [:li "Successful strategies dominate. Less successful ones become rare."]
+    [:li "As the dominant strategies change, the environment changes, and so different strategies can become successful."]
+    [:li "But this world tends towards a heterogenous mix of co-operative strategies."]]
+
+   ;[:svg {:style    {:width  "90%"
+   ;                  :height "50%"}
+   ;       :view-box (string/join " " [0 0 2000 1000
+   ;                                   ;(count (second (first (:score-history (:world @app-state)))))
+   ;                                   ;15000
+   ;                                   ])}
+   ;
+   ; (let [width-f (/ 1000 (count (second (first (:score-history (:world @app-state))))))
+   ;       height-f (/ 1000 (* 1.2 (apply max (map (comp last second) (:score-history (:world @app-state))))))]
+   ;   (for [[team-label score-history] (:score-history (:world @app-state))]
+   ;     (let [[_ color] (strategies/strategies-by-label team-label)]
+   ;       (for [[x [y1 y2]] (map-indexed vector (partition 2 1 score-history))]
+   ;         [:line {:key   (str team-label x)
+   ;                 :x1    (* x width-f)
+   ;                 :y1    (- 1000 (* y1 height-f))
+   ;                 :x2    (* (inc x) width-f)
+   ;                 :y2    (- 1000 (* y2 height-f))
+   ;                 :style {:stroke       color
+   ;                         "strokeWidth" 5}}]
+   ;         )
+   ;       )
+   ;
+   ;     ))]
 
    ;[:div "Debug:" (-> @app-state :world :nodes (get @debug) str)
    ; (doall (for [[i1 i2 h] (-> @app-state :world :inter) :when (or (= i1 @debug)

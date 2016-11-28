@@ -19,6 +19,7 @@
                 ;:factory factory
                 ;:strategy (factory)
                 :players [(factory) (factory) (factory) (factory)]
+                ;TODO: move factory calls onto relationships!
                 )))
 
 (defn new-node [x y]
@@ -57,7 +58,8 @@
            [this-index that-index this-player that-player history]))))
 
 (defn new-world []
-  {:max-score 100
+  {:counter 0
+   :max-score 100
    :min-score 0
    :nodes (new-nodes)
    :inter (new-inter)})

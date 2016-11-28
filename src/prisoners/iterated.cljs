@@ -126,11 +126,17 @@
                    (for [[_ [label-2 color-2]] strategies]
                      (let [score-1 (get-in games [label-1 label-2])
                            relative-score (/ score-1 max-score-per-game)
-                           scaled-score (Math/round (* 512 relative-score))
+                           scaled-score (Math/round (* 200 relative-score))
                            color (str "rgb("
-                                      (min 255 (- 512 scaled-score)) \,
-                                      (min 255 scaled-score) \,
-                                      0 \))]
+
+                                      (+ 55 scaled-score) \,
+                                      (+ 55 scaled-score) \,
+                                      (+ 55 scaled-score) \)
+
+                                      ;(min 255 (- 512 scaled-score)) \,
+                                      ;(min 255 scaled-score) \,
+                                      ;0 \)
+                                      )]
                        [:td {:key   (str "td-" label-2 label-1)
                              :style {:background-color :black
                                      :border-bottom    (str "1px solid " color-1)
@@ -168,33 +174,38 @@
 
       [:br]
 
+      [:h2 "The Result"]
+      [:ul
+       [:li "The best strategy depends on your opponent."]
+       [:li "Strategies that reciprocate do well. This is analagous to the '" [:span {:style {:color "rgb(255,200,0)"}} "Golden Rule"] "'."]]
+
       ;TODO: preset selections of strategies for talk
       ; demonstrate the effectiveness of a cooperating strategy
       ; demenstrate the lack of a universally best strategy
 
-      [:div {:style {:border        "1px solid white"
-                     :border-radius "10px"
-                     :margin "5px"
-                     :padding "5px"}}
-
-       " Label: " [:input {:id    "incoming-label"
-                         :type  "text"
-                         :default-value "My First Strategy"}]
-       " Color: " [:input {:id "incoming-color"
-                           :type :color
-                           :default-value (str "#" (.toString (rand-int 16rFFFFFF) 16))}]
-       [:br]
-
-       [:textarea {:id    "incoming-code"
-                   :cols 80
-                   :rows 20
-                   :default-value "#(fn [team-1 history-1 team-2 history-2]\n  (rand-nth (cons :co-op history-2)))"}]
-       [:br]
-
-       [:input {:type     "button"
-                :value    "Add"
-                :on-click add-strategy
-                :style    {:margin 10}}]]
+      ;[:div {:style {:border        "1px solid white"
+      ;               :border-radius "10px"
+      ;               :margin "5px"
+      ;               :padding "5px"}}
+      ;
+      ; " Label: " [:input {:id    "incoming-label"
+      ;                   :type  "text"
+      ;                   :default-value "My First Strategy"}]
+      ; " Color: " [:input {:id "incoming-color"
+      ;                     :type :color
+      ;                     :default-value (str "#" (.toString (rand-int 16rFFFFFF) 16))}]
+      ; [:br]
+      ;
+      ; [:textarea {:id    "incoming-code"
+      ;             :cols 80
+      ;             :rows 20
+      ;             :default-value "#(fn [team-1 history-1 team-2 history-2]\n  (rand-nth (cons :co-op history-2)))"}]
+      ; [:br]
+      ;
+      ; [:input {:type     "button"
+      ;          :value    "Add"
+      ;          :on-click add-strategy
+      ;          :style    {:margin 10}}]]
       ]]))
 
 

@@ -27,7 +27,7 @@
         swap (.indexOf scores new-min)]
     (-> world
         (assoc :min-score new-min :max-score new-max :swap swap)
-        (assoc-in [:nodes swap :score] (Math/round (+ new-min 100)))
+        (assoc-in [:nodes swap :score] (Math/round (/ (+ new-min new-max) 2)))
 
         (update-in [:nodes swap] #(world/add-team % (pick-team nodes swap)))
 
@@ -38,16 +38,33 @@
 ;TODO: put strategy factories on nodes, but strategies themselves on the interactions/relationships
 ;TODO: create a new strategy from the factory when a new relationship is forged.
 
-(defn score-teams [{:keys [nodes] :as world}]
-  (assoc world :scores
-               (reduce #(update %1 (:team %2) (fnil + 0) (:score %2)) {} nodes)))
+(defn record-score [a b]
+  (flatten (conj [a] b)))
+
+(defn merge-score [scores new-scores]
+  (merge-with record-score scores new-scores))
+
+(defn score-teams [{:keys [nodes counter score-history] :as world}]
+  (let [scores (reduce #(update %1 (:team %2) (fnil + 0) (:score %2)) {} nodes)
+        ;new-counter (mod (inc counter) 100)
+        ;new-score-history (if (zero? new-counter)
+        ;                (merge-score score-history scores)
+        ;                score-history)
+        ]
+    (assoc world
+      ;:counter new-counter
+      :scores scores
+      ;:score-history new-score-history
+      )))
 
 (defn add-noise [move]
   (let [r (rand)]
     (cond
-      (> r 0.95) :betray
-      (< r 0.05) :co-op
+      (> r 0.995) :betray
+      (< r 0.005) :co-op
       :else move)))
+
+;(def add-noise identity)
 
 (defn pose-dilemmas [{:keys [nodes inter] :as world}]
   (let [t-nodes (transient nodes)
@@ -67,8 +84,8 @@
             move1 (add-noise (fn1 t1 h1 t2 h2 i))
             move2 (add-noise (fn2 t2 h2 t1 h1 i))
             [ds1 ds2] (get-in payoffs [move1 move2])]
-        (assoc! t-nodes i1 (assoc node1 :score (+ s1 ds1)))
-        (assoc! t-nodes i2 (assoc node2 :score (+ s2 ds2)))
+        (assoc! t-nodes i1 (assoc node1 :score (* (+ s1 ds1) 0.99)))
+        (assoc! t-nodes i2 (assoc node2 :score (* (+ s2 ds2) 0.99)))
         (assoc! t-inter i [i1 i2 pl1 pl2 (add-history history move1 move2)])))
     (-> world
         (assoc :nodes (persistent! t-nodes))
